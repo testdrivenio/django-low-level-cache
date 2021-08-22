@@ -1,3 +1,4 @@
+from django.core.cache import cache
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse_lazy
@@ -10,7 +11,11 @@ class HomePageView(View):
     template_name = 'products/home.html'
 
     def get(self, request):
-        product_objects = Product.objects.all()
+        product_objects = cache.get('product_objects')
+
+        if product_objects is None:
+            product_objects = Product.objects.all()
+            cache.set('product_objects', product_objects)
 
         context = {
             'products': product_objects
